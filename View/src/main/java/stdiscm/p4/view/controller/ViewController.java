@@ -1,0 +1,85 @@
+package stdiscm.p4.view.controller;
+
+import com.google.gson.Gson;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
+import stdiscm.p4.view.model.LoginRequest;
+
+@Controller
+public class ViewController {
+
+    @Value("${nodes.auth.address}")
+    private String authAddress;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private Gson gson;
+
+    @GetMapping("/")
+    public String getHome(Model model, HttpSession session) {
+        if (session.getAttribute("jwtToken") != null) {
+            model.addAttribute("id_number", session.getAttribute("id_number"));
+            return "home";
+        }
+
+        return "login";
+    }
+
+    @GetMapping("/login")
+    public String getLogin() {
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String postLogin(@RequestParam(name = "id_number") String idNumber, @RequestParam String password, Model model, HttpSession session) {
+        String loginUrl = "http://" + authAddress + "/api/auth/login";
+
+        LoginRequest loginRequest = new LoginRequest(idNumber, password);
+        String requestBody = gson.toJson(loginRequest);
+
+        HttpHeaders headers= new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(loginUrl, request, String.class);
+
+            String jwtToken = response.getBody();
+            session.setAttribute("jwtToken", jwtToken);
+            session.setAttribute("id_number", idNumber);
+
+            return "redirect:/";
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            model.addAttribute("error", "Error: " + e.getResponseBodyAsString());
+            return "login";
+        } catch (ResourceAccessException e) {
+            model.addAttribute("error", "Unable to connect to the authentication server.");
+            return "login";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Login failed.");
+            return "login";
+        }
+    }
+
+    @GetMapping("/logout")
+    public String getLogout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+}

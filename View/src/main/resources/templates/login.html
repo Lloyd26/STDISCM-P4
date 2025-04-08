@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Enrollment System - Login</title>
+</head>
+<body>
+<form action="/login" method="post">
+    <label for="input_id_number">ID Number</label>
+    <input type="text" name="id_number" id="input_id_number">
+    <label for="input_password">Password</label>
+    <input type="password" name="password" id="input_password">
+    <button type="submit">Login</button>
+</form>
+<p th:if="${error != null}" th:text="${error}"></p>
+</body>
+</html>
