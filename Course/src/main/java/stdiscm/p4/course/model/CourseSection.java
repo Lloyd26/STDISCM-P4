@@ -1,7 +1,6 @@
 package stdiscm.p4.course.model;
 
 import jakarta.persistence.*;
-import stdiscm.p4.auth.model.Faculty;
 
 @Entity
 @Table(name = "course_sections")
@@ -26,20 +25,15 @@ public class CourseSection {
     @JoinColumn(name = "course_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Course course;
 
-    @ManyToOne
-    @JoinColumn(name = "faculty_id", referencedColumnName = "id_number", insertable = false, updatable = false)
-    private Faculty faculty;
-
     public CourseSection() {}
 
-    public CourseSection(Integer id, Integer courseId, String section, Integer facultyId, Integer enrollmentCap, Course course, Faculty faculty) {
+    public CourseSection(Integer id, Integer courseId, String section, Integer facultyId, Integer enrollmentCap, Course course) {
         this.id = id;
         this.courseId = courseId;
         this.section = section;
         this.facultyId = facultyId;
         this.enrollmentCap = enrollmentCap;
         this.course = course;
-        this.faculty = faculty;
     }
 
     public Integer getId() {
@@ -88,13 +82,5 @@ public class CourseSection {
 
     public void setCourse(Course course) {
         this.course = course;
-    }
-
-    public Faculty getFaculty() {
-        return faculty;
-    }
-
-    public void setFaculty(Faculty faculty) {
-        this.faculty = faculty;
     }
 }
