@@ -2,11 +2,13 @@ package stdiscm.p4.auth.controller;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import stdiscm.p4.auth.model.JwtResponse;
 import stdiscm.p4.auth.model.LoginRequest;
+import stdiscm.p4.auth.repository.StudentRepository;
 
 import java.util.Date;
 
@@ -19,6 +21,9 @@ public class AuthController {
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> postLogin(@RequestBody LoginRequest loginRequest) {
@@ -33,7 +38,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Password is empty.");
         }
 
-        if (idNumber.equals("12345678") && password.equals("pass1234")) {
+        if (studentRepository.findByIdNumberAndPassword(Integer.valueOf(idNumber), password) != null) {
             String jwtToken = generateJwtToken(idNumber);
             return ResponseEntity.ok(new JwtResponse(jwtToken));
         }
