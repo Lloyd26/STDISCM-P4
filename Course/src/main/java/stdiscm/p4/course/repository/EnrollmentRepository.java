@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer> {
 
     @Query(value = "SELECT\n" +
+            "cs.id AS courseId,\n" +
             "cs.section AS section,\n" +
             "c.code AS courseCode,\n" +
             "c.name AS courseName,\n" +

@@ -10,25 +10,19 @@ import java.util.List;
 
 @Repository
 public interface CourseSectionRepository extends JpaRepository<CourseSection, Integer> {
-    
-    @Query(value = "SELECT\n" +
-            "DISTINCT cs.id AS `ClassNbr`,\n" +
-            "c.code AS `Course`,\n" +
-            "cs.section AS `Section`,\n" +
-            "CONCAT(f.first_name, ' ', f.last_name) AS `Faculty`,\n" +
-            "cs.enrollment_cap AS `EnrlCap`,\n" +
-            "(SELECT COUNT(*) FROM enrollments WHERE section_id=cs.id) AS `Enrolled`\n" +
-            "FROM enrollments AS e\n" +
-            "JOIN course_sections AS cs\n" +
-            "ON e.section_id=cs.id\n" +
-            "JOIN students AS s\n" +
-            "ON e.student_id=s.id_number\n" +
-            "JOIN faculty AS f\n" +
-            "ON cs.faculty_id=f.id_number\n" +
-            "JOIN courses AS c\n" +
-            "ON cs.course_id=c.id\n" +
-            "WHERE c.code=:courseCode\n" +
+
+    @Query(value = "SELECT " +
+            "cs.id AS `Class Nbr`, " +
+            "c.code AS `Course`, " +
+            "cs.section AS `Section`, " +
+            "cs.enrollment_cap AS `Enrl Cap`, " +
+            "(SELECT COUNT(*) FROM enrollments WHERE section_id = cs.id) AS `Enrolled`, " +
+            "CONCAT(f.first_name, ' ', f.last_name) AS `Faculty` " +
+            "FROM course_sections cs " +
+            "JOIN courses c ON cs.course_id = c.id " +
+            "JOIN faculty f ON cs.faculty_id = f.id_number " +
+            "WHERE c.code = :courseCode " +
             "ORDER BY cs.section ASC",
-    nativeQuery = true)
+            nativeQuery = true)
     List<Object[]> findAllSectionsByCourse(@Param("courseCode") String courseCode);
 }

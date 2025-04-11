@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.course.model.Course;
+import stdiscm.p4.view.model.DropRequest;
 import stdiscm.p4.view.model.EnrollmentRequest;
 
 import java.util.List;
@@ -180,5 +181,43 @@ public class ViewCourseController {
         }
 
         return "redirect:/courses/";
+    }
+
+    @PostMapping("/drop")
+    public String postDrop(@RequestParam("sectionId") Integer sectionId, Model model, HttpSession session) {
+        String jwtToken = (String) session.getAttribute("jwtToken");
+        Integer studentId = Integer.valueOf((String) session.getAttribute("id_number"));
+
+        if (jwtToken == null || studentId == null) return "redirect:/";
+
+        String dropApiUrl = "http://" + courseServiceAddress + "/api/enrollment/drop";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        HttpEntity<DropRequest> requestEntity = new HttpEntity<>(new DropRequest(studentId, sectionId), headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    dropApiUrl,
+                    HttpMethod.DELETE,
+                    requestEntity,
+                    String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                model.addAttribute("message", "Successfully dropped class with section ID: " + sectionId);
+            } else {
+                model.addAttribute("error", "Failed top drop class. Status: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            model.addAttribute("error", "Error dropping class: " + e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            model.addAttribute("error", "Unable to connect to the Course node.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Something went wrong while trying to drop the class.");
+        }
+
+        return "redirect:/courses";
     }
 }

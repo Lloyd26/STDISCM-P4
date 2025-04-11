@@ -22,10 +22,16 @@
     </thead>
     <tbody>
     <tr th:each="classes: ${student_classes}">
-        <td th:text="${classes[0]}"></td>
         <td th:text="${classes[1]}"></td>
         <td th:text="${classes[2]}"></td>
         <td th:text="${classes[3]}"></td>
+        <td th:text="${classes[4]}"></td>
+        <td>
+            <form th:action="@{/courses/drop}" method="post">
+                <input type="hidden" name="sectionId" th:value="${classes[0]}">
+                <button type="submit">Drop</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

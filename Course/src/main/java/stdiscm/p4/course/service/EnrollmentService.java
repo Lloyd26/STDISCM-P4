@@ -60,4 +60,13 @@ public class EnrollmentService {
         enrollment.setSectionId(sectionId);
         enrollmentRepository.save(enrollment);
     }
+
+    public void dropStudent(Integer studentId, Integer sectionId) {
+        Optional<Enrollment> enrollmentOptional = enrollmentRepository.findByStudentIdAndSectionId(studentId, sectionId);
+        if (enrollmentOptional.isEmpty()) {
+            throw new IllegalStateException("Enrollment record not found for student " + studentId + " and section " + sectionId);
+        }
+
+        enrollmentRepository.delete(enrollmentOptional.get());
+    }
 }

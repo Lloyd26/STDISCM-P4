@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import stdiscm.p4.course.model.DropRequest;
 import stdiscm.p4.course.model.EnrollmentRequest;
 import stdiscm.p4.course.repository.EnrollmentRepository;
 import stdiscm.p4.course.service.EnrollmentService;
@@ -40,6 +41,24 @@ public class EnrollmentController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Error during enrollment", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/drop")
+    public ResponseEntity<?> deleteDrop(@RequestBody DropRequest dropRequest) {
+        Integer studentId = dropRequest.getStudentId();
+        Integer sectionId = dropRequest.getSectionId();
+
+        try {
+            enrollmentService.dropStudent(studentId, sectionId);
+            return new ResponseEntity<>("Successfully dropped", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error during drop operation", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
