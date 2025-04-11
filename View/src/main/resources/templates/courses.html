@@ -8,6 +8,7 @@
     <title>View Courses - Enrollment System</title>
 </head>
 <body>
+<p th:if="${error != null}" th:text="${error}"></p>
 <table>
     <tr th:each="courses: ${courses}">
         <td th:text="${courses.courseId}"></td>
