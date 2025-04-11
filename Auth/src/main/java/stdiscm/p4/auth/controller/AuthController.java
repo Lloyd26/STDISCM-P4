@@ -30,7 +30,7 @@ public class AuthController {
         }
 
         if (password.isEmpty()) {
-            return ResponseEntity.badRequest().body("Password in empty.");
+            return ResponseEntity.badRequest().body("Password is empty.");
         }
 
         if (idNumber.equals("12345678") && password.equals("pass1234")) {
