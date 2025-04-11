@@ -18,7 +18,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.course.model.Course;
-import stdiscm.p4.course.model.CourseSection;
 
 import java.util.List;
 
@@ -37,6 +36,10 @@ public class ViewCourseController {
         String jwtToken = (String) session.getAttribute("jwtToken");
         if (jwtToken == null) return "redirect:/";
 
+        String studentId = (String) session.getAttribute("id_number");
+
+        String enrollmentClassesApiUrl = "http://" + courseServiceAddress + "/api/enrollment/classes?id=" + studentId;
+
         String coursesApiUrl = "http://" + courseServiceAddress + "/api/courses/";
 
         HttpHeaders headers = new HttpHeaders();
@@ -50,6 +53,20 @@ public class ViewCourseController {
                     requestEntity,
                     new ParameterizedTypeReference<>() {}
             );
+
+            ResponseEntity<List<Object[]>> studentClassesResponse = restTemplate.exchange(
+                    enrollmentClassesApiUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    new ParameterizedTypeReference<List<Object[]>>() {}
+            );
+
+            if (studentClassesResponse.getStatusCode().is2xxSuccessful()) {
+                List<Object[]> studentClasses = studentClassesResponse.getBody();
+                model.addAttribute("student_classes", studentClasses);
+            } else {
+                model.addAttribute("error", "Failed to fetch classes for student " + studentId + ". Status: " + studentClassesResponse.getStatusCode());
+            }
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 List<Course> courses = response.getBody();
@@ -76,6 +93,10 @@ public class ViewCourseController {
         String jwtToken = (String) session.getAttribute("jwtToken");
         if (jwtToken == null) return "redirect:/";
 
+        String studentId = (String) session.getAttribute("id_number");
+
+        String enrollmentClassesApiUrl = "http://" + courseServiceAddress + "/api/enrollment/classes?id=" + studentId;
+
         String courseSectionsApiUrl = "http://" + courseServiceAddress + "/api/courses/" + course + "/sections";
 
         HttpHeaders headers = new HttpHeaders();
@@ -89,6 +110,20 @@ public class ViewCourseController {
                     requestEntity,
                     new ParameterizedTypeReference<List<Object[]>>() {}
             );
+
+            ResponseEntity<List<Object[]>> studentClassesResponse = restTemplate.exchange(
+                    enrollmentClassesApiUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    new ParameterizedTypeReference<List<Object[]>>() {}
+            );
+
+            if (studentClassesResponse.getStatusCode().is2xxSuccessful()) {
+                List<Object[]> studentClasses = studentClassesResponse.getBody();
+                model.addAttribute("student_classes", studentClasses);
+            } else {
+                model.addAttribute("error", "Failed to fetch classes for student " + studentId + ". Status: " + studentClassesResponse.getStatusCode());
+            }
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 List<Object[]> courseSections = response.getBody();

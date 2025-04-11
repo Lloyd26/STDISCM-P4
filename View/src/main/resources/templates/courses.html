@@ -9,10 +9,31 @@
 </head>
 <body>
 <p th:if="${error != null}" th:text="${error}"></p>
+<h1>Your Classes</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Section</th>
+            <th>Course</th>
+            <th>Course Name</th>
+            <th>Faculty</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="classes: ${student_classes}">
+            <td th:text="${classes[0]}"></td>
+            <td th:text="${classes[1]}"></td>
+            <td th:text="${classes[2]}"></td>
+            <td th:text="${classes[3]}"></td>
+        </tr>
+    </tbody>
+</table>
+<hr>
+<h1>View Courses</h1>
 <table>
     <tr th:each="courses: ${courses}">
         <td th:text="${courses.courseId}"></td>
-        <td th:text="${courses.courseCode}"></td>
+        <td><a th:href="|/courses/${courses.courseCode}/sections|" th:text="${courses.courseCode}"></a></td>
         <td th:text="${courses.courseName}"></td>
     </tr>
 </table>
