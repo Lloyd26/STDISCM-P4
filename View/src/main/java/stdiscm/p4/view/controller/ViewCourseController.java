@@ -93,6 +93,8 @@ public class ViewCourseController {
         String jwtToken = (String) session.getAttribute("jwtToken");
         if (jwtToken == null) return "redirect:/";
 
+        model.addAttribute("course", course);
+
         String studentId = (String) session.getAttribute("id_number");
 
         String enrollmentClassesApiUrl = "http://" + courseServiceAddress + "/api/enrollment/classes?id=" + studentId;
