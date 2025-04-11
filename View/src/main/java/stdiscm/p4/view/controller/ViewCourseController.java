@@ -4,20 +4,16 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.course.model.Course;
+import stdiscm.p4.view.model.EnrollmentRequest;
 
 import java.util.List;
 
@@ -145,5 +141,44 @@ public class ViewCourseController {
             model.addAttribute("error", "Something went wrong while trying to fetch sections for the " + course + " course.");
             return "course_sections";
         }
+    }
+
+    @PostMapping("/{course}/enroll")
+    public String postEnroll(@RequestParam("sectionId") Integer sectionId, Model model, HttpSession session) {
+        String jwtToken = (String) session.getAttribute("jwtToken");
+
+        Integer studentId = Integer.valueOf((String) session.getAttribute("id_number"));
+
+        if (jwtToken == null || studentId == null) return "redirect:/";
+
+        String enrollApiUrl = "http://" + courseServiceAddress + "/api/enrollment/enroll";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        EnrollmentRequest enrollmentRequest = new EnrollmentRequest(studentId, sectionId);
+        HttpEntity<EnrollmentRequest> requestEntity = new HttpEntity<>(enrollmentRequest, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    enrollApiUrl,
+                    requestEntity,
+                    String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                model.addAttribute("message", "Successfully enlisted!");
+            } else {
+                model.addAttribute("error", "Failed to enlist. Status: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            model.addAttribute("error", "Error enlisting: " + e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            model.addAttribute("error", "Unable to connect to the Course node.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Something went wrong while trying to enlist.");
+        }
+
+        return "redirect:/courses/";
     }
 }

@@ -8,6 +8,7 @@
     <title>Course Sections - Enrollment System</title>
 </head>
 <body>
+<p th:if="${message != null}" th:text="${message}"></p>
 <p th:if="${error != null}" th:text="${error}"></p>
 <h1>Your Classes</h1>
 <table>
@@ -49,6 +50,12 @@
             <td th:text="${section[3]}"></td>
             <td th:text="${section[4]}"></td>
             <td th:text="${section[5]}"></td>
+            <td>
+                <form th:action="|/courses/${section[1]}/enroll|" method="post">
+                    <input type="hidden" name="sectionId" th:value="${section[0]}">
+                    <button type="submit">Enlist</button>
+                </form>
+            </td>
         </tr>
     </tbody>
 </table>

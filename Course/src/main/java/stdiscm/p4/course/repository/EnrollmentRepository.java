@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import stdiscm.p4.course.model.Enrollment;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer> {
@@ -26,4 +27,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>
             "WHERE e.student_id=:studentId",
     nativeQuery = true)
     List<Object[]> findClassesByStudentId(@Param("studentId") Integer studentId);
+
+    Optional<Enrollment> findByStudentIdAndSectionId(Integer studentId, Integer sectionId);
 }

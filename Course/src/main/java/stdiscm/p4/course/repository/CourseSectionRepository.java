@@ -12,7 +12,7 @@ import java.util.List;
 public interface CourseSectionRepository extends JpaRepository<CourseSection, Integer> {
     
     @Query(value = "SELECT\n" +
-            "cs.id AS `ClassNbr`,\n" +
+            "DISTINCT cs.id AS `ClassNbr`,\n" +
             "c.code AS `Course`,\n" +
             "cs.section AS `Section`,\n" +
             "CONCAT(f.first_name, ' ', f.last_name) AS `Faculty`,\n" +
