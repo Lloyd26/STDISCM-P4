@@ -5,12 +5,15 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Enrollment System</title>
+    <title>View Courses - Enrollment System</title>
 </head>
 <body>
-<h1 th:text="|Welcome ${id_number}!|"></h1>
-<a href="/logout">Logout</a>
-<br/>
-<a href="/courses">View Courses</a>
+<table>
+    <tr th:each="courses: ${courses}">
+        <td th:text="${courses.courseId}"></td>
+        <td th:text="${courses.courseCode}"></td>
+        <td th:text="${courses.courseName}"></td>
+    </tr>
+</table>
 </body>
 </html>
