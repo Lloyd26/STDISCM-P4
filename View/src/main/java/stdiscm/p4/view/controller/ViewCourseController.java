@@ -11,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.course.model.Course;
+import stdiscm.p4.course.model.CourseSection;
 
 import java.util.List;
 
@@ -46,8 +48,7 @@ public class ViewCourseController {
                     coursesApiUrl,
                     HttpMethod.GET,
                     requestEntity,
-                    new ParameterizedTypeReference<>() {
-                    }
+                    new ParameterizedTypeReference<>() {}
             );
 
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -67,6 +68,45 @@ public class ViewCourseController {
             e.printStackTrace();
             model.addAttribute("error", "Something went wrong while trying to fetch courses.");
             return "courses";
+        }
+    }
+
+    @GetMapping("/{course}/sections")
+    public String getCourseSections(@PathVariable String course, Model model, HttpSession session) {
+        String jwtToken = (String) session.getAttribute("jwtToken");
+        if (jwtToken == null) return "redirect:/";
+
+        String courseSectionsApiUrl = "http://" + courseServiceAddress + "/api/courses/" + course + "/sections";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<Object[]>> response = restTemplate.exchange(
+                    courseSectionsApiUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    new ParameterizedTypeReference<List<Object[]>>() {}
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                List<Object[]> courseSections = response.getBody();
+                model.addAttribute("course_sections", courseSections);
+            } else {
+                model.addAttribute("error", "Failed to fetch courses. Status: " + response.getStatusCode());
+            }
+            return "course_sections";
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            model.addAttribute("error", "Error:" + e.getResponseBodyAsString());
+            return "course_sections";
+        } catch (ResourceAccessException e) {
+            model.addAttribute("error", "Unable to connect to the Course node.");
+            return "course_sections";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Something went wrong while trying to fetch sections for the " + course + " course.");
+            return "course_sections";
         }
     }
 }

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Course Sections - Enrollment System</title>
+</head>
+<body>
+<p th:if="${error != null}" th:text="${error}"></p>
+<table>
+    <thead>
+        <tr>
+            <th>Class Nbr</th>
+            <th>Course</th>
+            <th>Section</th>
+            <th>Faculty</th>
+            <th>Enrl Cap</th>
+            <th>Enrolled</th>
+        </tr>
+    </thead>
+    <tr th:each="section: ${course_sections}">
+        <td th:text="${section[0]}"></td>
+        <td th:text="${section[1]}"></td>
+        <td th:text="${section[2]}"></td>
+        <td th:text="${section[3]}"></td>
+        <td th:text="${section[4]}"></td>
+        <td th:text="${section[5]}"></td>
+    </tr>
+</table>
+</body>
+</html>
