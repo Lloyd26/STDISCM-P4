@@ -3,7 +3,7 @@ package stdiscm.p4.auth.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "students")
+@Table(name = "faculty")
 public class Faculty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
