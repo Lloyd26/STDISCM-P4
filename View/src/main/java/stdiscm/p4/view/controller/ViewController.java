@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,11 +20,16 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.view.model.LoginRequest;
 
+import java.util.List;
+
 @Controller
 public class ViewController {
 
     @Value("${nodes.auth.address}")
     private String authAddress;
+
+    @Value("${nodes.grades.address}")
+    private String gradesAddress;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -81,5 +88,46 @@ public class ViewController {
     public String getLogout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    @GetMapping("/grades")
+    public String getGrades(Model model, HttpSession session) {
+        String jwtToken = (String) session.getAttribute("jwtToken");
+        String studentId = (String) session.getAttribute("id_number");
+
+        if (jwtToken == null || studentId == null) return "redirect:/";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            String gradesApiUrl = "http://" + gradesAddress + "/api/grades?studentId=" + studentId;
+
+            ResponseEntity<List<Object[]>> response = restTemplate.exchange(
+                    gradesApiUrl,
+                    HttpMethod.GET,
+                    requestEntity,
+                    new ParameterizedTypeReference<List<Object[]>>() {}
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                model.addAttribute("error", "Failed to fetch your enrollments.");
+                return "grades";
+            }
+
+            model.addAttribute("grades", response.getBody());
+            return "grades";
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            model.addAttribute("error", "Error fetching data: " + e.getResponseBodyAsString());
+            return "grades";
+        } catch (ResourceAccessException e) {
+            model.addAttribute("error", "Unable to connect to the Grades node.");
+            return "grades";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Something went wrong while trying to fetch your grades.");
+            return "grades";
+        }
     }
 }
