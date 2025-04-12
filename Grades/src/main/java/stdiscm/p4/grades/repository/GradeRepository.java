@@ -1,6 +1,8 @@
 package stdiscm.p4.grades.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import stdiscm.p4.grades.model.Grade;
@@ -24,4 +26,9 @@ public interface GradeRepository extends JpaRepository<Grade, Integer> {
             "WHERE e.student_id=:studentId",
     nativeQuery = true)
     List<Object[]> findGradesByStudentId(@Param("studentId") Integer studentId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM grades WHERE enrollment_id=:enrollmentId", nativeQuery = true)
+    void deleteByEnrollmentId(@Param("enrollmentId") Integer enrollmentId);
 }

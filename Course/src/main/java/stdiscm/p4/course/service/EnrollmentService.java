@@ -4,8 +4,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import stdiscm.p4.auth.repository.StudentRepository;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 import stdiscm.p4.course.model.CourseSection;
 import stdiscm.p4.course.model.Enrollment;
 import stdiscm.p4.course.repository.CourseSectionRepository;
@@ -25,6 +31,9 @@ public class EnrollmentService {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${nodes.grades.address}")
+    private String gradesAddress;
 
     public Integer getStudentIdFromToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
@@ -78,6 +87,23 @@ public class EnrollmentService {
             throw new IllegalStateException("Enrollment record not found for student " + studentId + " and section " + sectionId);
         }
 
-        enrollmentRepository.delete(enrollmentOptional.get());
+        Enrollment enrollment = enrollmentOptional.get();
+        Integer enrollmentId = enrollment.getId();
+
+        try {
+            String deleteGradesUrl = "http://" + gradesAddress + "/api/grades?enrollmentId=" + enrollmentId;
+            HttpHeaders headers = new HttpHeaders();
+            HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.exchange(deleteGradesUrl, HttpMethod.DELETE, requestEntity, String.class);
+
+            enrollmentRepository.delete(enrollmentOptional.get());
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new RuntimeException("Error deleting grades for enrollment " + enrollmentId + ": " + e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            throw new RuntimeException("Unable to connect to the Grades node.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error during drop operation (grades deletion).", e);
+        }
     }
 }

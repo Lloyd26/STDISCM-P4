@@ -14,16 +14,19 @@ public class Grade {
     @Enumerated(EnumType.STRING)
     private GradeValue grade;
 
+    @Column(name = "enrollment_id")
+    private Integer enrollmentId;
+
     /*@ManyToOne
     @JoinColumn(name = "enrollment_id", nullable = false)
     private Enrollment enrollment;*/
 
     public Grade() {}
 
-    public Grade(Integer id, GradeValue grade) {
+    public Grade(Integer id, GradeValue grade, Integer enrollmentId) {
         this.id = id;
         this.grade = grade;
-        //this.enrollment = enrollment;
+        this.enrollmentId = enrollmentId;
     }
 
     public Integer getId() {
@@ -49,6 +52,14 @@ public class Grade {
     public void setEnrollment(Enrollment enrollment) {
         this.enrollment = enrollment;
     }*/
+
+    public Integer getEnrollmentId() {
+        return enrollmentId;
+    }
+
+    public void setEnrollmentId(Integer enrollmentId) {
+        this.enrollmentId = enrollmentId;
+    }
 
     public enum GradeValue {
         _0_0("0.0"),
