@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import stdiscm.p4.auth.model.JwtResponse;
 import stdiscm.p4.auth.model.LoginRequest;
+import stdiscm.p4.auth.repository.FacultyRepository;
 import stdiscm.p4.auth.repository.StudentRepository;
 
 import java.util.Date;
@@ -24,6 +25,8 @@ public class AuthController {
 
     @Autowired
     private StudentRepository studentRepository;
+    @Autowired
+    private FacultyRepository facultyRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> postLogin(@RequestBody LoginRequest loginRequest) {
@@ -39,6 +42,27 @@ public class AuthController {
         }
 
         if (studentRepository.findByIdNumberAndPassword(Integer.valueOf(idNumber), password) != null) {
+            String jwtToken = generateJwtToken(idNumber);
+            return ResponseEntity.ok(new JwtResponse(jwtToken));
+        }
+
+        return ResponseEntity.badRequest().body("Incorrect ID number or password.");
+    }
+
+    @PostMapping("/login/faculty")
+    public ResponseEntity<?> postLoginFaculty(@RequestBody LoginRequest loginRequest) {
+        String idNumber = loginRequest.getIdNumber();
+        String password = loginRequest.getPassword();
+
+        if (idNumber.isEmpty()) {
+            return ResponseEntity.badRequest().body("ID number is empty.");
+        }
+
+        if (password.isEmpty()) {
+            return ResponseEntity.badRequest().body("Password is empty.");
+        }
+
+        if (facultyRepository.findByIdNumberAndPassword(Integer.valueOf(idNumber), password) != null) {
             String jwtToken = generateJwtToken(idNumber);
             return ResponseEntity.ok(new JwtResponse(jwtToken));
         }

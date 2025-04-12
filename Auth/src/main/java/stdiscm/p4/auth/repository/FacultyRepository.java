@@ -6,4 +6,5 @@ import stdiscm.p4.auth.model.Faculty;
 
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, Integer> {
+    Faculty findByIdNumberAndPassword(Integer idNumber, String password);
 }

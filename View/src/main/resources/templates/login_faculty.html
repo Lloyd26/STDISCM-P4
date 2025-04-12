@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Faculty Login - Enrollment System</title>
+</head>
+<body>
+<h1>Faculty Login</h1>
+<form action="/faculty" method="post">
+    <label for="input_id_number">ID Number</label>
+    <input type="text" id="input_id_number" name="id_number">
+    <label for="input_password">Password</label>
+    <input type="password" name="password" id="input_password">
+    <button type="submit">Login</button>
+
+    <p th:if="${error != null}" th:text="${error}"></p>
+
+</form>
+</body>
+</html>
