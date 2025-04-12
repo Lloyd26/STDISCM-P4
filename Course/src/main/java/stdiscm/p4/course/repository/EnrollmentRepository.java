@@ -30,4 +30,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>
     List<Object[]> findClassesByStudentId(@Param("studentId") Integer studentId);
 
     Optional<Enrollment> findByStudentIdAndSectionId(Integer studentId, Integer sectionId);
+
+    List<Enrollment> findByStudentId(Integer studentId);
 }

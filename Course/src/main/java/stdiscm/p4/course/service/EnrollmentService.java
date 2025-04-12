@@ -12,6 +12,7 @@ import stdiscm.p4.course.repository.CourseSectionRepository;
 import stdiscm.p4.course.repository.EnrollmentRepository;
 
 import java.security.Key;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,6 +51,16 @@ public class EnrollmentService {
         }
 
         CourseSection section = sectionOptional.get();
+        Integer courseId = section.getCourse().getCourseId();
+
+        List<Enrollment> existingEnrollments = enrollmentRepository.findByStudentId(studentId);
+        for (Enrollment existingEnrollment : existingEnrollments) {
+            if (existingEnrollment.getCourseSection() != null &&
+                    existingEnrollment.getCourseSection().getCourse() != null &&
+                    existingEnrollment.getCourseSection().getCourse().getCourseId().equals(courseId)) {
+                throw new IllegalStateException("Student is already enrolled in another section of this course");
+            }
+        }
 
         if (enrollmentRepository.findByStudentIdAndSectionId(studentId, sectionId).isPresent()) {
             throw new IllegalStateException("Student is already enrolled in this section");

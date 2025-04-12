@@ -16,6 +16,10 @@ public class Enrollment {
     @Column(name = "section_id")
     private Integer sectionId;
 
+    @ManyToOne
+    @JoinColumn(name = "section_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private CourseSection courseSection;
+
     public Enrollment() {}
 
     public Enrollment(Integer id, Integer studentId, Integer sectionId, Student student, CourseSection courseSection) {
@@ -46,5 +50,13 @@ public class Enrollment {
 
     public void setSectionId(Integer sectionId) {
         this.sectionId = sectionId;
+    }
+
+    public CourseSection getCourseSection() {
+        return courseSection;
+    }
+
+    public void setCourseSection(CourseSection courseSection) {
+        this.courseSection = courseSection;
     }
 }
