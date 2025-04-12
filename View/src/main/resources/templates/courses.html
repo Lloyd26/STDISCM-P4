@@ -8,6 +8,7 @@
     <title>View Courses - Enrollment System</title>
 </head>
 <body>
+<p th:if="${message != null}" th:text="${message}"></p>
 <p th:if="${error != null}" th:text="${error}"></p>
 <h1>Your Classes</h1>
 <table>

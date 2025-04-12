@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import stdiscm.p4.course.model.Course;
 import stdiscm.p4.view.model.DropRequest;
 import stdiscm.p4.view.model.EnrollmentRequest;
@@ -145,7 +146,7 @@ public class ViewCourseController {
     }
 
     @PostMapping("/{course}/enroll")
-    public String postEnroll(@RequestParam("sectionId") Integer sectionId, Model model, HttpSession session) {
+    public String postEnroll(@RequestParam("sectionId") Integer sectionId, RedirectAttributes redirectAttributes, HttpSession session) {
         String jwtToken = (String) session.getAttribute("jwtToken");
 
         Integer studentId = Integer.valueOf((String) session.getAttribute("id_number"));
@@ -167,17 +168,17 @@ public class ViewCourseController {
             );
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
-                model.addAttribute("message", "Successfully enlisted!");
+                redirectAttributes.addFlashAttribute("message", "Successfully enlisted!");
             } else {
-                model.addAttribute("error", "Failed to enlist. Status: " + response.getStatusCode());
+                redirectAttributes.addFlashAttribute("error", "Failed to enlist. Status: " + response.getStatusCode());
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            model.addAttribute("error", "Error enlisting: " + e.getResponseBodyAsString());
+            redirectAttributes.addFlashAttribute("error", "Error enlisting: " + e.getResponseBodyAsString());
         } catch (ResourceAccessException e) {
-            model.addAttribute("error", "Unable to connect to the Course node.");
+            redirectAttributes.addFlashAttribute("error", "Unable to connect to the Course node.");
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "Something went wrong while trying to enlist.");
+            redirectAttributes.addFlashAttribute("error", "Something went wrong while trying to enlist.");
         }
 
         return "redirect:/courses/";
