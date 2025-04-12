@@ -63,6 +63,7 @@
         <module>View</module>
         <module>Auth</module>
         <module>Course</module>
+        <module>Grades</module>
     </modules>
 
 </project>
