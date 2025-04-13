@@ -45,6 +45,7 @@ public class ViewFacultyController {
         if (jwtToken == null) return "login_faculty";
 
         String facultyId = (String) session.getAttribute("faculty_id_number");
+        model.addAttribute("facultyId", facultyId);
 
         String facultyClassesUrl = "http://" + courseServiceAddress + "/api/courses-faculty/classes?facultyId=" + facultyId;
 
