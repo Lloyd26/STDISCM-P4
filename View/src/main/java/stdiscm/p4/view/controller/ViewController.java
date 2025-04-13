@@ -130,43 +130,4 @@ public class ViewController {
             return "grades";
         }
     }
-
-    @GetMapping("/faculty")
-    public String getFaculty(Model model, HttpSession session) {
-        String jwtToken = (String) session.getAttribute("faculty_jwtToken");
-        if (jwtToken == null) return "login_faculty";
-        return "home_faculty";
-    }
-
-    @PostMapping("/faculty")
-    public String postFaculty(@RequestParam("id_number") String idNumber, @RequestParam("password") String password, Model model, HttpSession session) {
-        String loginUrl = "http://" + authAddress + "/api/auth/login/faculty";
-
-        LoginRequest loginRequest = new LoginRequest(idNumber, password);
-        String requestBody = gson.toJson(loginRequest);
-
-        HttpHeaders headers= new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
-
-        try {
-            ResponseEntity<String> response = restTemplate.postForEntity(loginUrl, request, String.class);
-
-            String jwtToken = response.getBody();
-            session.setAttribute("faculty_jwtToken", jwtToken);
-            session.setAttribute("faculty_id_number", idNumber);
-
-            return "redirect:/faculty";
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            model.addAttribute("error", "Error: " + e.getResponseBodyAsString());
-            return "login_faculty";
-        } catch (ResourceAccessException e) {
-            model.addAttribute("error", "Unable to connect to the authentication server.");
-            return "login_faculty";
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Login failed.");
-            return "login_faculty";
-        }
-    }
 }
