@@ -25,4 +25,14 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
             "ORDER BY cs.section ASC",
             nativeQuery = true)
     List<Object[]> findAllSectionsByCourse(@Param("courseCode") String courseCode);
+
+    @Query(value = "SELECT c.code, cs.section\n" +
+            "FROM course_sections cs\n" +
+            "JOIN faculty f\n" +
+            "ON cs.faculty_id=f.id_number\n" +
+            "JOIN courses c\n" +
+            "ON cs.course_id=c.id\n" +
+            "WHERE f.id_number=:facultyId",
+    nativeQuery = true)
+    List<Object[]> findFacultyClassesByFacultyId(@Param("facultyId") String facultyId);
 }

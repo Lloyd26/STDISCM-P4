@@ -10,5 +10,12 @@
 <body>
 <h1>Faculty Home</h1>
 <a href="/logout?next=%2Ffaculty">Logout</a>
+<hr>
+<h2>Your Classes</h2>
+<table>
+    <tr th:each="class: ${classes}">
+        <td><a th:text="|${class[0]}-${class[1]}|" th:href="|/faculty/grade?course=${class[0]}&amp;section=${class[1]}"></a></td>
+    </tr>
+</table>
 </body>
 </html>
